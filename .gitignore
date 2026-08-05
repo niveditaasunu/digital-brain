@@ -1,0 +1,14 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.venv/
+backend/venv/
+
+# Env files (never commit real credentials)
+.env
+frontend/.env
+backend/.env

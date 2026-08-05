@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+::selection {
+  background: #7dd3fc;
+  color: #05060a;
+}
+
+/* Landing page signature element: a single neuron firing, with pulse
+   rings expanding outward like a thought propagating. */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes core-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px 6px rgba(125, 211, 252, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 32px 12px rgba(125, 211, 252, 0.85);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 3s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+.pulse-ring-delay {
+  animation-delay: 1.5s;
+}
+
+.core-glow {
+  animation: core-glow 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
