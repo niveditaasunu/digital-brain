@@ -176,3 +176,43 @@ The project has now moved beyond a static frontend prototype and has a functioni
 The next test is to refresh the application and verify that the connection between `Python` and `Machine Learning` persists after reload.
 
 This will confirm that the visible connection is being persisted in Neo4j rather than existing only in the current React session.
+
+### Digital Brain Checkpoints
+
+# checkpoint 1
+created the react frontend
+created the fastapi backend
+connected the project to neo4j aura
+set up the GitHub repository
+
+# checkpoint 2
+successfully connected fastapi to neo4j
+created the first neuron : python
+retrieved the neuron from the database
+displayed it in the brain
+
+# checkpoint 3
+added the ability to create neurons from the website
+created machine learning from the ui
+confirmed that the new neuron is saved in neo4j
+
+# checkpoint 4
+added connections between neurons 
+connected python and machine learning neurons
+the connections appears as a line between the neurons
+confirmed the connection stays after refreshing the page
+
+# checkpoint 5
+added editing of neurons
+added deletion of neurons
+confirmed changes remain after refreshing
+
+# checkpoint 6
+added search
+searching for an idea highlights matching neurons
+added category filtering 
+tested category filtering 
+tested category filtering successfully
+
+current status 
+the basic brain is working...i can create edit delete and connect ideas. The data is stroed permanently in neo4j and displayed
