@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import verify_connectivity, close_driver
-from .routers import neurons, connections
+from .routers import neurons, connections, auth
 
 
 @asynccontextmanager
@@ -17,9 +17,17 @@ async def lifespan(app: FastAPI):
     close_driver()
 
 
-app = FastAPI(title="Digital Brain API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="Digital Brain API",
+    version="0.1.0",
+    lifespan=lifespan,
+)
 
-origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -28,8 +36,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Existing routes — KEEPING THEM
 app.include_router(neurons.router)
 app.include_router(connections.router)
+
+# Authentication routes
+app.include_router(auth.router)
 
 
 @app.get("/api/health")

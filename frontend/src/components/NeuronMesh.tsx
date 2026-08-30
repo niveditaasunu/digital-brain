@@ -7,9 +7,9 @@ import type { Neuron } from "../types";
 interface Props {
   neuron: Neuron;
   isSelected: boolean;
-  isNeighbor: boolean; // true if connected to the currently-selected neuron
-  isFaded: boolean; // true if search/filter excludes it
-  isConnectSource: boolean; // true if this neuron is the pending source of a new connection
+  isNeighbor: boolean;
+  isFaded: boolean;
+  isConnectSource: boolean;
   onClick: (id: string) => void;
 }
 
@@ -21,71 +21,384 @@ export default function NeuronMesh({
   isConnectSource,
   onClick,
 }: Props) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+
   const [hovered, setHovered] = useState(false);
 
-  // Feature 10: hover/click makes the neuron and its neighbors glow, and
-  // the camera-facing label appears. Nothing here is static.
   useFrame((state) => {
-    if (!meshRef.current) return;
-    const targetScale =
-      hovered || isSelected ? 1.35 : isNeighbor ? 1.12 : 1;
-    meshRef.current.scale.lerp(
-      new THREE.Vector3(targetScale, targetScale, targetScale),
-      0.15
+    if (!coreRef.current || !glowRef.current) return;
+
+    const time = state.clock.elapsedTime;
+
+    const active = hovered || isSelected;
+
+    const targetScale = active
+      ? 1.35
+      : isNeighbor
+      ? 1.15
+      : 1;
+
+    coreRef.current.scale.lerp(
+      new THREE.Vector3(
+        targetScale,
+        targetScale,
+        targetScale
+      ),
+      0.12
     );
 
-    const material = meshRef.current.material as THREE.MeshStandardMaterial;
-    const baseIntensity = isFaded ? 0.15 : 0.8;
-    const activeBoost = hovered || isSelected ? 1.2 : isNeighbor ? 0.5 : 0;
-    const pulse = 0.15 * Math.sin(state.clock.elapsedTime * 2 + neuron.x);
-    material.emissiveIntensity = baseIntensity + activeBoost + pulse;
-    material.opacity = isFaded ? 0.25 : 1;
+    /*
+     * Neon breathing effect
+     */
+    const pulse =
+      0.35 *
+      Math.sin(
+        time * 3 + neuron.x + neuron.y
+      );
+
+    const material =
+      coreRef.current.material as THREE.MeshStandardMaterial;
+
+    material.emissiveIntensity =
+      isFaded
+        ? 0.15
+        : active
+        ? 3.5 + pulse
+        : isNeighbor
+        ? 2.4 + pulse
+        : 1.8 + pulse * 0.4;
+
+    material.opacity = isFaded ? 0.18 : 1;
+
+    /*
+     * Outer glow
+     */
+    const glowPulse =
+      1 +
+      0.12 *
+        Math.sin(
+          time * 2 +
+            neuron.z
+        );
+
+    const glowScale =
+      (active
+        ? 1.5
+        : isNeighbor
+        ? 1.25
+        : 1) * glowPulse;
+
+    glowRef.current.scale.set(
+      glowScale,
+      glowScale,
+      glowScale
+    );
+
+    const glowMaterial =
+      glowRef.current.material as THREE.MeshBasicMaterial;
+
+    glowMaterial.opacity =
+      isFaded
+        ? 0.01
+        : active
+        ? 0.3
+        : isNeighbor
+        ? 0.18
+        : 0.09;
+
+    /*
+     * Rotating selection ring
+     */
+    if (ringRef.current) {
+      ringRef.current.rotation.z =
+        time * 1.2;
+
+      ringRef.current.rotation.x =
+        Math.sin(time * 0.8) * 0.3;
+    }
   });
 
   return (
-    <group position={[neuron.x, neuron.y, neuron.z]}>
+    <group
+      position={[
+        neuron.x,
+        neuron.y,
+        neuron.z,
+      ]}
+    >
+
+      {/* ================================================== */}
+      {/* LARGE NEON AURA */}
+      {/* ================================================== */}
+
+      <mesh ref={glowRef}>
+        <sphereGeometry
+          args={[0.9, 32, 32]}
+        />
+
+        <meshBasicMaterial
+          color={neuron.color}
+          transparent
+          opacity={0.09}
+          depthWrite={false}
+          blending={
+            THREE.AdditiveBlending
+          }
+        />
+      </mesh>
+
+      {/* ================================================== */}
+      {/* INNER NEON AURA */}
+      {/* ================================================== */}
+
+      <mesh>
+        <sphereGeometry
+          args={[0.55, 32, 32]}
+        />
+
+        <meshBasicMaterial
+          color={neuron.color}
+          transparent
+          opacity={
+            isFaded
+              ? 0.01
+              : 0.2
+          }
+          depthWrite={false}
+          blending={
+            THREE.AdditiveBlending
+          }
+        />
+      </mesh>
+
+      {/* ================================================== */}
+      {/* MAIN NEON CORE */}
+      {/* ================================================== */}
+
       <mesh
-        ref={meshRef}
+        ref={coreRef}
         onClick={(e) => {
           e.stopPropagation();
           onClick(neuron.id);
         }}
         onPointerOver={(e) => {
           e.stopPropagation();
+
           setHovered(true);
-          document.body.style.cursor = "pointer";
+
+          document.body.style.cursor =
+            "pointer";
         }}
         onPointerOut={() => {
           setHovered(false);
-          document.body.style.cursor = "default";
+
+          document.body.style.cursor =
+            "default";
         }}
       >
-        <sphereGeometry args={[0.35, 32, 32]} />
+        <icosahedronGeometry
+          args={[0.32, 3]}
+        />
+
         <meshStandardMaterial
           color={neuron.color}
           emissive={neuron.color}
-          emissiveIntensity={0.8}
+          emissiveIntensity={2}
+          roughness={0.15}
+          metalness={0.35}
           transparent
           opacity={1}
         />
       </mesh>
 
+      {/* ================================================== */}
+      {/* ORBITING PARTICLES */}
+      {/* ================================================== */}
+
+      {!isFaded && (
+        <>
+          <mesh
+            position={[
+              0.42,
+              0.08,
+              0.05,
+            ]}
+          >
+            <sphereGeometry
+              args={[0.035, 8, 8]}
+            />
+
+            <meshBasicMaterial
+              color={neuron.color}
+              transparent
+              opacity={0.9}
+              depthWrite={false}
+              blending={
+                THREE.AdditiveBlending
+              }
+            />
+          </mesh>
+
+          <mesh
+            position={[
+              -0.35,
+              0.2,
+              -0.1,
+            ]}
+          >
+            <sphereGeometry
+              args={[0.025, 8, 8]}
+            />
+
+            <meshBasicMaterial
+              color={neuron.color}
+              transparent
+              opacity={0.85}
+              depthWrite={false}
+              blending={
+                THREE.AdditiveBlending
+              }
+            />
+          </mesh>
+
+          <mesh
+            position={[
+              0.05,
+              -0.42,
+              0.12,
+            ]}
+          >
+            <sphereGeometry
+              args={[0.03, 8, 8]}
+            />
+
+            <meshBasicMaterial
+              color={neuron.color}
+              transparent
+              opacity={0.85}
+              depthWrite={false}
+              blending={
+                THREE.AdditiveBlending
+              }
+            />
+          </mesh>
+        </>
+      )}
+
+      {/* ================================================== */}
+      {/* SELECTED NEURON RINGS */}
+      {/* ================================================== */}
+
+      {isSelected && (
+        <>
+          <mesh
+            ref={ringRef}
+            rotation={[
+              Math.PI / 2,
+              0,
+              0,
+            ]}
+          >
+            <torusGeometry
+              args={[
+                0.62,
+                0.025,
+                8,
+                48,
+              ]}
+            />
+
+            <meshBasicMaterial
+              color={neuron.color}
+              transparent
+              opacity={0.95}
+              depthWrite={false}
+              blending={
+                THREE.AdditiveBlending
+              }
+            />
+          </mesh>
+
+          <mesh
+            rotation={[
+              0,
+              Math.PI / 2,
+              0,
+            ]}
+          >
+            <torusGeometry
+              args={[
+                0.75,
+                0.015,
+                8,
+                48,
+              ]}
+            />
+
+            <meshBasicMaterial
+              color={neuron.color}
+              transparent
+              opacity={0.55}
+              depthWrite={false}
+              blending={
+                THREE.AdditiveBlending
+              }
+            />
+          </mesh>
+        </>
+      )}
+
+      {/* ================================================== */}
+      {/* CONNECTION SOURCE */}
+      {/* ================================================== */}
+
       {isConnectSource && (
-        <mesh>
-          <ringGeometry args={[0.5, 0.58, 32]} />
-          <meshBasicMaterial color="#7dd3fc" side={THREE.DoubleSide} />
+        <mesh
+          rotation={[
+            Math.PI / 2,
+            0,
+            0,
+          ]}
+        >
+          <ringGeometry
+            args={[
+              0.52,
+              0.65,
+              48,
+            ]}
+          />
+
+          <meshBasicMaterial
+            color="#ffffff"
+            side={THREE.DoubleSide}
+            transparent
+            opacity={1}
+            depthWrite={false}
+            blending={
+              THREE.AdditiveBlending
+            }
+          />
         </mesh>
       )}
 
+      {/* ================================================== */}
+      {/* LABEL */}
+      {/* ================================================== */}
+
       {(hovered || isSelected) && (
         <Text
-          position={[0, 0.6, 0]}
+          position={[
+            0,
+            0.72,
+            0,
+          ]}
           fontSize={0.28}
-          color="white"
+          color="#ffffff"
           anchorX="center"
           anchorY="bottom"
-          outlineWidth={0.02}
+          outlineWidth={0.035}
           outlineColor="#05060a"
         >
           {neuron.title}
