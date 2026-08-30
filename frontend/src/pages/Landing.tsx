@@ -21,7 +21,7 @@ export default function Landing() {
       </p>
 
       <button
-        onClick={() => navigate("/brain")}
+        onClick={() => navigate("/login")}
         className="mt-10 font-body px-7 py-3 rounded-full bg-signal text-void font-medium hover:bg-white transition-colors"
       >
         Enter Brain
