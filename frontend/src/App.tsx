@@ -6,9 +6,9 @@ import {
 
 import Landing from "./pages/Landing";
 import Brain from "./pages/Brain";
-import Timeline from "./pages/Timeline";
-import Insights from "./pages/Insights";
-import Login from "./pages/Login";
+import Timeline from "./pages/timeline";
+import Insights from "./pages/insights";
+import Login from "./pages/login";
 
 export default function App() {
   return (

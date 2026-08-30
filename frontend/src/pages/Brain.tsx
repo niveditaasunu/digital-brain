@@ -365,15 +365,6 @@ export default function Brain() {
   return (
     <div
       className="relative h-screen w-screen bg-void overflow-hidden"
-      onPointerMissed={() => {
-        if (connectSourceId) {
-          handleCancelConnection();
-        }
-
-        if (selectedConnection) {
-          setSelectedConnection(null);
-        }
-      }}
     >
       {/* ===================================================== */}
       {/* LOADING */}
