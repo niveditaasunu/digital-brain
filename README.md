@@ -1,109 +1,141 @@
-# Digital Brain v0.1
+# Digital Brain
 
-A 3D knowledge graph — ideas as glowing neurons, relationships as synapses.
+A personal space where you can store your ideas and see how they are connected.
 
-This is a working implementation of the v0.1 spec: create/edit/delete neurons,
-manual connections, categories with colors, search, filtering, and a landing
-page. Data is persisted in Neo4j Aura, so it survives closing the browser.
+Digital Brain represents each idea as a neuron and each relationship between ideas as a connection. The goal is to help you see your knowledge as a connected system instead of a collection of separate notes.
 
-## Stack
+## Live Demo
 
-- **Frontend:** React + TypeScript + Vite + Tailwind CSS + React Three Fiber (Three.js)
-- **Backend:** FastAPI
-- **Database:** Neo4j (Aura cloud)
+Website: [Add your deployed frontend URL]
 
-## Prerequisites
+Backend: https://digital-brain-backend-w16g.onrender.com
 
-- Node.js 18+ and npm (`node -v`, `npm -v`)
-- Python 3.10+ (`python --version`)
-- A Neo4j Aura Free instance (URI + username + password)
+The project is currently in the early testing stage.
 
-## 1. Backend setup
+## What You Can Do
 
-```powershell
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-copy .env.example .env
+* Create your own account
+* Create and manage ideas
+* Add descriptions, categories, tags and types to ideas
+* Connect related ideas
+* Explore your ideas in a 3D view
+* Search through your ideas
+* Filter ideas by category
+* View how your brain develops over time
+* View basic information about your knowledge graph
+
+## How It Works
+
+Each idea is stored as a neuron.
+
+When two ideas are related, they can be connected.
+
+For example:
+
+```text
+Python
+   |
+   | related to
+   |
+Machine Learning
+   |
+   | used in
+   |
+Artificial Intelligence
 ```
 
-Open `.env` and fill in the three values from your Aura instance:
+As you add more ideas and connections, your personal knowledge graph grows.
 
+## Technology
+
+### Frontend
+
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
+* Three.js
+* React Three Fiber
+
+### Backend
+
+* Python
+* FastAPI
+* Uvicorn
+* JWT authentication
+
+### Database
+
+* Neo4j
+
+### Deployment
+
+* GitHub
+* Render
+* Neo4j Aura
+
+## Project Structure
+
+```text
+digital-brain/
+│
+├── backend/
+│   ├── app/
+│   │   ├── routers/
+│   │   │   ├── auth.py
+│   │   │   ├── neurons.py
+│   │   │   └── connections.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   └── main.py
+│   │
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── api/
+│   │   ├── App.tsx
+│   │   └── types.ts
+│   │
+│   └── package.json
+│
+└── README.md
 ```
-NEO4J_URI=neo4j+s://xxxxxxxx.databases.neo4j.io
-NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=your-password-here
-```
 
-Run the server:
+## Current Status
 
-```powershell
-uvicorn app.main:app --reload --port 8000
-```
+Digital Brain is currently a working MVP.
 
-Visit **http://localhost:8000/api/health** — you should see `{"status":"ok"}`.
-If instead you get an error about missing credentials or connectivity, double
-check your `.env` values and that the Aura instance status is "Running".
+The first version has been deployed and is being tested with early users. The next features and changes will be based on feedback from these users.
 
-Interactive API docs are auto-generated at **http://localhost:8000/docs** —
-useful for testing endpoints directly before the frontend is wired up.
+## What's Next
 
-## 2. Frontend setup
+Some of the ideas being explored for future versions include:
 
-Open a **second** terminal (leave the backend running in the first one):
+* Making it faster and easier to add ideas
+* Automatically finding connections between ideas
+* An AI feature that can answer questions using your own brain
+* Better ways to understand how your knowledge changes over time
+* Shareable views of your brain
 
-```powershell
-cd frontend
-npm install
-npm run dev
-```
+These features are not part of the current version yet.
 
-Visit **http://localhost:5173**. You should see the landing page, then
-"Enter Brain" takes you into the empty 3D space. Click the `+` button to
-create your first neuron.
+## Why I Built This
 
-## How the pieces fit together
+Most tools are designed to store notes.
 
-```
-frontend (5173) --HTTP--> backend (8000) --Bolt driver--> Neo4j Aura (cloud)
-```
+I wanted to experiment with a different idea: what if your knowledge could be represented as a living network of ideas and relationships?
 
-- `backend/app/database.py` — single Neo4j driver instance, created once at startup
-- `backend/app/routers/neurons.py` — create/read/update/delete + search/filter
-- `backend/app/routers/connections.py` — create/delete synapses between neurons
-- `frontend/src/api/client.ts` — typed fetch wrapper calling the FastAPI routes
-- `frontend/src/components/BrainScene.tsx` — the R3F `<Canvas>` and camera controls
-- `frontend/src/components/NeuronMesh.tsx` — one glowing sphere per idea
-- `frontend/src/components/ConnectionLine.tsx` — pulsing lines between connected neurons
-- `frontend/src/pages/Brain.tsx` — fetches data, owns UI state, composes everything
+Digital Brain is an attempt to explore that idea.
 
-## Using it
+## Built By
 
-- **Create a neuron:** click `+` top-right, fill in title/description/category/tags
-- **Connect two neurons:** open a neuron's panel → "Connect to another neuron" → click the second neuron in the 3D view
-- **Edit:** click a neuron → "Edit" in the side panel
-- **Delete:** click a neuron → "Delete neuron" (also removes its connections)
-- **Search:** top-right search box fades out non-matching neurons
-- **Filter by category:** pills at top-left
-- **Navigate:** left-click + drag to rotate, scroll to zoom, right-click + drag to pan
+Niveditaa Sunu
 
-## Known limitations (intentional, for v0.1)
+B.Tech Computer Science Engineering
 
-- No AI features yet (auto-connections, semantic search) — the graph structure
-  is designed so these can be added later without a data model change.
-- No authentication — this is a single-user local app for now.
-- No automated tests yet.
-- Positions are assigned once at creation (random point on a sphere) and
-  persisted — the layout won't auto-arrange itself as the graph grows.
+## License
 
-## Troubleshooting
-
-- **"Couldn't reach the backend" banner in the UI:** the FastAPI server isn't
-  running, or it's on a different port than `http://localhost:8000`. Check
-  the first terminal.
-- **Backend fails to start with a Neo4j error:** check `backend/.env` values
-  against what Aura shows for your instance, and confirm the instance status
-  is "Running" (not "Paused").
-- **CORS error in the browser console:** confirm `CORS_ORIGINS` in
-  `backend/.env` includes `http://localhost:5173` (it does by default).
+MIT License

@@ -86,8 +86,17 @@ export default function Brain() {
   }
 
   useEffect(() => {
-    refresh();
-  }, []);
+  const token =
+    localStorage.getItem("access_token") ??
+    localStorage.getItem("token");
+
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  refresh();
+}, []);
 
   /*
    * ============================================================
