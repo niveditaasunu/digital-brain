@@ -6,7 +6,7 @@ Digital Brain represents each idea as a neuron and each relationship between ide
 
 ## Live Demo
 
-Website: [Add your deployed frontend URL]
+Website: https://digital-brain-sxki.onrender.com
 
 Backend: https://digital-brain-backend-w16g.onrender.com
 
